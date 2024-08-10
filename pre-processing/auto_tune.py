@@ -16,8 +16,8 @@ import concurrent.futures
 import sys
 
 SEMITONES_IN_OCTAVE = 12
-INPUT_FOLDER_PATH = 'Flo/data/segmented'
-OUTPUT_FOLDER_PATH = 'data/segmented_pc'
+INPUT_FOLDER_PATH_VOCALS = 'data/vocals'
+OUTPUT_FOLDER_PATH_SEGMENTED = 'data/segmented'
 
 
 def closest_pitch_smooth(f0):
@@ -163,21 +163,21 @@ def autotune(audio, sr, plot=False, filename=None):
     # return psola.vocode(audio, sample_rate=int(sr), target_pitch=corrected_f0, fmin=fmin, fmax=fmax)
 
 def create_directory_structure():
-    if not os.path.exists("Flo/data/segmented/pl/original/"): os.makedirs("Flo/data/segmented/pl/original/")
-    if not os.path.exists("Flo/data/segmented/pl/corrected/"): os.makedirs("Flo/data/segmented/pl/corrected/") 
-    if not os.path.exists("Flo/data/segmented/pl/smoothed/"): os.makedirs("Flo/data/segmented/pl/smoothed/")
-    if not os.path.exists("Flo/data/segmented/spec/original/"): os.makedirs("Flo/data/segmented/spec/original/")
-    if not os.path.exists("Flo/data/segmented/spec/corrected/"): os.makedirs("Flo/data/segmented/spec/corrected/") 
-    if not os.path.exists("Flo/data/segmented/spec/smoothed/"): os.makedirs("Flo/data/segmented/spec/smoothed/") 
-    if not os.path.exists("Flo/data/segmented/pl/original/"): os.makedirs("Flo/data/segmented/pl/original/")
-    if not os.path.exists("Flo/data/segmented/pl/corrected/"): os.makedirs("Flo/data/segmented/pl/corrected/") 
-    if not os.path.exists("Flo/data/segmented/pl/smoothed/"): os.makedirs("Flo/data/segmented/pl/smoothed/")
-    if not os.path.exists("Flo/data/segmented/spec/original/"): os.makedirs("Flo/data/segmented/spec/original/")
-    if not os.path.exists("Flo/data/segmented/spec/corrected/"): os.makedirs("Flo/data/segmented/spec/corrected/") 
-    if not os.path.exists("Flo/data/segmented/spec/smoothed/"): os.makedirs("Flo/data/segmented/spec/smoothed/") 
+    if not os.path.exists("data/segmented/pl/original/"): os.makedirs("data/segmented/pl/original/")
+    if not os.path.exists("data/segmented/pl/corrected/"): os.makedirs("data/segmented/pl/corrected/") 
+    if not os.path.exists("data/segmented/pl/smoothed/"): os.makedirs("data/segmented/pl/smoothed/")
+    if not os.path.exists("data/segmented/spec/original/"): os.makedirs("data/segmented/spec/original/")
+    if not os.path.exists("data/segmented/spec/corrected/"): os.makedirs("data/segmented/spec/corrected/") 
+    if not os.path.exists("data/segmented/spec/smoothed/"): os.makedirs("data/segmented/spec/smoothed/") 
+    if not os.path.exists("data/segmented/pl/original/"): os.makedirs("data/segmented/pl/original/")
+    if not os.path.exists("data/segmented/pl/corrected/"): os.makedirs("data/segmented/pl/corrected/") 
+    if not os.path.exists("data/segmented/pl/smoothed/"): os.makedirs("data/segmented/pl/smoothed/")
+    if not os.path.exists("data/segmented/spec/original/"): os.makedirs("data/segmented/spec/original/")
+    if not os.path.exists("data/segmented/spec/corrected/"): os.makedirs("data/segmented/spec/corrected/") 
+    if not os.path.exists("data/segmented/spec/smoothed/"): os.makedirs("data/segmented/spec/smoothed/") 
 
 def process_file(wav_file):
-    file_path = Path(os.path.join(INPUT_FOLDER_PATH, wav_file))
+    file_path = Path(os.path.join(INPUT_FOLDER_PATH_VOCALS, wav_file))
     # Load the audio file.
     y, sr = librosa.load(str(file_path), sr=None, mono=False)
 
@@ -203,7 +203,7 @@ def process_files_in_parallel(file_list):
 
 def main():
     create_directory_structure()
-    wav_files = [file for file in os.listdir(INPUT_FOLDER_PATH) if file.endswith('.wav')]
+    wav_files = [file for file in os.listdir(INPUT_FOLDER_PATH_VOCALS) if file.endswith('.wav')]
     num_wav_files = len(wav_files)
     print(num_wav_files)
     process_files_in_parallel(wav_files)

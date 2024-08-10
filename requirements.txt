@@ -4,3 +4,8 @@ matplotlib
 soundfile
 scipy
 psola
+torch
+torchvision
+os
+pydub
+tqdm
