@@ -26,7 +26,7 @@ Additionally, there is a script to analyze the files and extract a distribution 
 
 ## Scripts
 
-- `convert_m4a_to_wav.py`: Script to convert `.m4a` files to `.wav` files.
+- `convert_m4a_wav.py`: Script to convert `.m4a` files to `.wav` files.
 - `segment_wav_files.py`: Script to segment the `.wav` files into 10-second segments.
 - `auto_tune.py`: Script to apply the pitch correction and create the pitch line graphs and spectrograms.
 - `analyze_frequencies.py`: Script to analyze the frequency distribution.
