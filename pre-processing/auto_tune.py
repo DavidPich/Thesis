@@ -14,14 +14,15 @@ import pandas as pd
 import os
 import concurrent.futures
 import sys
+from tqdm import tqdm 
 
 SEMITONES_IN_OCTAVE = 12
-INPUT_FOLDER_PATH_VOCALS = 'data/vocals'
-OUTPUT_FOLDER_PATH_SEGMENTED = 'data/segmented'
+INPUT_FOLDER_PATH_WAV = 'data/segmented'
 
 
 def closest_pitch_smooth(f0):
     """Round the given pitch values to the nearest MIDI note numbers"""
+    
     midi_note = librosa.hz_to_midi(f0)
 
     rounded = np.subtract(np.round(midi_note), midi_note)
@@ -48,45 +49,49 @@ def closest_pitch(f0):
     return librosa.midi_to_hz(midi_note)
 
 def spectrogram(audio, sr, filename, correction_method):
+    """
+    Compute and save the spectrogram of an audio signal.
+
+    Parameters:
+    - audio (ndarray): The audio signal.
+    - sr (int): The sampling rate of the audio signal.
+    - filename (str): The path to the output file.
+    - correction_method (str): The method used for pitch correction.
+    """
+    
     frame_length = 2048
     hop_length = frame_length // 4
     fmin = librosa.note_to_hz('C2')
     fmax = librosa.note_to_hz('C7')
 
     stft = librosa.stft(audio, n_fft=frame_length, hop_length=hop_length)
-    #time_points = librosa.times_like(stft, sr=sr, hop_length=hop_length)
     log_stft = librosa.amplitude_to_db(np.abs(stft), ref=np.max)
-    fig, ax = plt.subplots()
-    img = librosa.display.specshow(log_stft, x_axis='time', y_axis='log', ax=ax, sr=sr, hop_length=hop_length, fmin=fmin, fmax=fmax)
-    #fig.colorbar(img, ax=ax, format="%+2.f dB")
-    #ax.plot(time_points, f0, label='original pitch', color='cyan', linewidth=2)
-    #ax.plot(time_points, corrected_f0, label='corrected pitch', color='orange', linewidth=1)
-    #ax.legend(loc='upper right')
+    _ , ax = plt.subplots()
+    librosa.display.specshow(log_stft, x_axis='time', y_axis='log', ax=ax, sr=sr, hop_length=hop_length, fmin=fmin, fmax=fmax)
+
     ax.set_ylim([0, 2048])
 
     plt.ylabel('')
     plt.xlabel('')
     ax.set_axis_off() 
-    #plt.savefig('pitch_correction.png', dpi=300, bbox_inches='tight')
-    plt.savefig(str(filename.parent / 'spec' / correction_method / (filename.stem + '.png')), dpi=300, bbox_inches='tight', pad_inches=0)
+    plt.savefig(str(filename.parent / 'graph/spec' / correction_method / (filename.stem + '.png')), dpi=300, bbox_inches='tight', pad_inches=0)
     plt.close('all')
 
-def pitchLineGraph(f, filename, correction_method):
+def pitchLineGraph(f0, filename, correction_method):
     matplotlib.use('Agg')
     plt.figure()  # Create a new figure
     _, ax = plt.subplots()
     ax.set_ylim([0, 600])
     ax.set_xlim([0, 431])
-    plt.plot(f, label='original pitch', color='orange', linewidth=1)
+    plt.plot(f0, label='', color='orange', linewidth=1)
     plt.ylabel('')
     plt.xlabel('')
     ax.set_axis_off()
-    plt.savefig(str(filename.parent / 'pl' / correction_method / (filename.stem + '.png')), dpi=300, bbox_inches='tight', pad_inches=0)
+    plt.savefig(str(filename.parent / 'graph/pl' / correction_method / (filename.stem + '.png')), dpi=300, bbox_inches='tight', pad_inches=0)
     plt.close('all')
 
-def autotune(audio, sr, plot=False, filename=None):
-    global lowInfo
-
+def autotune(audio, sr, filename=None):
+   
     # Set some basis parameters.
     frame_length = 2048
     hop_length = frame_length // 4
@@ -95,89 +100,78 @@ def autotune(audio, sr, plot=False, filename=None):
 
     # Pitch tracking using the PYIN algorithm.
     f0, _, _ = librosa.pyin(audio,
-                                frame_length=frame_length,
-                                hop_length=hop_length,
-                                sr=sr,
-                                fmin=fmin,
-                                fmax=fmax)
+                            frame_length=frame_length,
+                            hop_length=hop_length,
+                            sr=sr,
+                            fmin=fmin,
+                            fmax=fmax)
 
-    # Excluse empty graphs
-
-
-    # Apply the chosen adjustment strategy to the pitch.
+    # Exclude segments with less than 50% of pitch information
     f0[f0 > 600] = np.nan
     information_pct = ((1 - (np.count_nonzero(np.isnan(f0))/ f0.size)))
-    print(f"Information percentage: {information_pct}")
-    print(f0.size)
+    
     if information_pct < 0.5:
-        lowInfo += 1
-        print(f"File {filename} has low information percentage: {information_pct}")
-        #sys.exit(1)
         return
-    
+
+
+    # Apply the chosen adjustment strategy to the pitch    
+
+    # Correct the pitch using the closest pitch method
     corrected_f0 = closest_pitch(f0)
-    corrected_f0_smooth = closest_pitch_smooth(f0)
 
+    # Pitch-shifting using the PSOLA algorithm
     corrected_audio = psola.vocode(audio, sample_rate=int(sr), target_pitch=corrected_f0, fmin=fmin, fmax=fmax)
-    corrected_smooth_audio = psola.vocode(audio, sample_rate=int(sr), target_pitch=corrected_f0_smooth, fmin=fmin, fmax=fmax)
 
+    # Pitch tracking using the PYIN algorithm.
     corrected_audio_f0, _, _ = librosa.pyin(corrected_audio,
-                            frame_length=frame_length,
-                            hop_length=hop_length,
-                            sr=sr,
-                            fmin=fmin,
-                            fmax=fmax)
+                                            frame_length=frame_length,
+                                            hop_length=hop_length,
+                                            sr=sr,
+                                            fmin=fmin,
+                                            fmax=fmax)
     
+    # Save the corrected audio
+    #filepath = filename.parent / (filename.stem + '_pc' + filename.suffix)
+    #sf.write(str(filepath), corrected_audio, sr)
+
+    # Correct the pitch using the smoothed closest pitch method
+    corrected_f0_smooth = closest_pitch_smooth(f0)    
+
+    # Pitch-shifting using the PSOLA algorithm
+    corrected_smooth_audio = psola.vocode(audio, sample_rate=int(sr), target_pitch=corrected_f0_smooth, fmin=fmin, fmax=fmax)
+    
+    # Pitch tracking using the PYIN algorithm.
     corrected_smooth_audio_f0, _, _ = librosa.pyin(corrected_smooth_audio,
-                            frame_length=frame_length,
-                            hop_length=hop_length,
-                            sr=sr,
-                            fmin=fmin,
-                            fmax=fmax)
+                                                    frame_length=frame_length,
+                                                    hop_length=hop_length,
+                                                    sr=sr,
+                                                    fmin=fmin,
+                                                    fmax=fmax)
     
-    #print(f"Original {f0}")
-    #print(f"Shifted {corrected_f0}f")
+    # Save the smooth corrected audio
+    #filepath = filename.parent / (filename.stem + '_pcs' + filename.suffix)
+    #sf.write(str(filepath), corrected_smooth_audio, sr)
+    
+    # Plot the pitch line
+    pitchLineGraph(f0, filename, 'original')
+    pitchLineGraph(corrected_audio_f0, filename, 'corrected')
+    pitchLineGraph(corrected_smooth_audio_f0, filename, 'smoothed')
 
-    if plot:
-        # To just plot the spectrogram without the pitchlines, if needed remove comment
-        # Plot the pitch trajectory of the original pitch
-        #plt.figure()  # Create a new figure 
-
-        # Plot the pitch line
-        #pitchLineGraph(f0, filename, 'original')
-        #pitchLineGraph(corrected_audio_f0, filename, 'corrected')
-        #pitchLineGraph(corrected_smooth_audio_f0, filename, 'smoothed')
-
-        # Plot the spectrogram
-        spectrogram(audio,sr,filename,'original')
-        spectrogram(corrected_audio,sr,filename,'corrected')
-        spectrogram(corrected_smooth_audio,sr,filename,'smoothed')
-
-
-        filepath = filename.parent / (filename.stem + '_pc' + filename.suffix)
-        #sf.write(str(filepath), corrected_audio, sr)
-
-
-    return
-    # Pitch-shifting using the PSOLA algorithm.
-    # return psola.vocode(audio, sample_rate=int(sr), target_pitch=corrected_f0, fmin=fmin, fmax=fmax)
+    # Plot the spectrogram
+    spectrogram(audio,sr,filename,'original')
+    spectrogram(corrected_audio,sr,filename,'corrected')
+    spectrogram(corrected_smooth_audio,sr,filename,'smoothed')
 
 def create_directory_structure():
-    if not os.path.exists("data/segmented/pl/original/"): os.makedirs("data/segmented/pl/original/")
-    if not os.path.exists("data/segmented/pl/corrected/"): os.makedirs("data/segmented/pl/corrected/") 
-    if not os.path.exists("data/segmented/pl/smoothed/"): os.makedirs("data/segmented/pl/smoothed/")
-    if not os.path.exists("data/segmented/spec/original/"): os.makedirs("data/segmented/spec/original/")
-    if not os.path.exists("data/segmented/spec/corrected/"): os.makedirs("data/segmented/spec/corrected/") 
-    if not os.path.exists("data/segmented/spec/smoothed/"): os.makedirs("data/segmented/spec/smoothed/") 
-    if not os.path.exists("data/segmented/pl/original/"): os.makedirs("data/segmented/pl/original/")
-    if not os.path.exists("data/segmented/pl/corrected/"): os.makedirs("data/segmented/pl/corrected/") 
-    if not os.path.exists("data/segmented/pl/smoothed/"): os.makedirs("data/segmented/pl/smoothed/")
-    if not os.path.exists("data/segmented/spec/original/"): os.makedirs("data/segmented/spec/original/")
-    if not os.path.exists("data/segmented/spec/corrected/"): os.makedirs("data/segmented/spec/corrected/") 
-    if not os.path.exists("data/segmented/spec/smoothed/"): os.makedirs("data/segmented/spec/smoothed/") 
+    if not os.path.exists("data/segmented/graph/pl/original/"): os.makedirs("data/segmented/graph/pl/original/")
+    if not os.path.exists("data/segmented/graph/pl/corrected/"): os.makedirs("data/segmented/graph/pl/corrected/") 
+    if not os.path.exists("data/segmented/graph/pl/smoothed/"): os.makedirs("data/segmented/graph/pl/smoothed/")
+    if not os.path.exists("data/segmented/graph/spec/original/"): os.makedirs("data/segmented/graph/spec/original/")
+    if not os.path.exists("data/segmented/graph/spec/corrected/"): os.makedirs("data/segmented/graph/spec/corrected/") 
+    if not os.path.exists("data/segmented/graph/spec/smoothed/"): os.makedirs("data/segmented/graph/spec/smoothed/") 
 
 def process_file(wav_file):
-    file_path = Path(os.path.join(INPUT_FOLDER_PATH_VOCALS, wav_file))
+    file_path = Path(os.path.join(INPUT_FOLDER_PATH_WAV, wav_file))
     # Load the audio file.
     y, sr = librosa.load(str(file_path), sr=None, mono=False)
 
@@ -186,10 +180,7 @@ def process_file(wav_file):
         y = y[0, :]
 
     # Without args
-    autotune(y, sr, True, file_path)
-    #print(f"File: {file_path}, highest pitch: {highestPitch}, lowest pitch: {lowestPitch}")
-    #print(f"Low Information: {lowInfo}")
-    #print(f"Under 100: {under100} Between 100 and 300: {between100and300} Between 300 and 600: {between300and600} Between 600 and 1200: {between600and1200} Over 1200: {over12}")
+    autotune(y, sr, file_path)
 
 def process_files_in_parallel(file_list):
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -203,19 +194,13 @@ def process_files_in_parallel(file_list):
 
 def main():
     create_directory_structure()
-    wav_files = [file for file in os.listdir(INPUT_FOLDER_PATH_VOCALS) if file.endswith('.wav')]
+    wav_files = [file for file in os.listdir(INPUT_FOLDER_PATH_WAV) if file.endswith('.wav')]
     num_wav_files = len(wav_files)
     print(num_wav_files)
-    process_files_in_parallel(wav_files)
-    
-    
-    #No multithreading
-    #for wav_file in wav_files:
-    #    process_file(wav_file)
-    
-    #single file
-    #process_file('67982109_31286272_14.wav')
+    #process_files_in_parallel(wav_files)
 
+    for wav_file in tqdm(wav_files):
+        process_file(wav_file)
 
     
 if __name__=='__main__':

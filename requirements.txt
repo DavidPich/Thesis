@@ -1,5 +1,6 @@
 librosa
 numpy
+pandas
 matplotlib
 soundfile
 scipy
@@ -9,3 +10,4 @@ torchvision
 os
 pydub
 tqdm
+ffmpeg

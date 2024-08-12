@@ -30,13 +30,16 @@ def split_wav(wav_file):
 
     #print(f"File {wav_file} has been split into {num_segments} segments.")
 
-def create_directory_structure():
-    if not os.path.exists("data/segmented/"): os.makedirs("data/segmented/")
+
 
 def main():
+    # Ensure the output folder exists
+    if not os.path.exists(OUTPUT_FOLDER_PATH): os.makedirs(OUTPUT_FOLDER_PATH)
+
     # Get a list of all .wav files in the folder
-    create_directory_structure()
     wav_files = [file for file in os.listdir(INPUT_FOLDER_PATH) if file.endswith('.wav')]
+
+    # Count the number of .wav files
     num_wav_files = len(wav_files)
     print(num_wav_files)
 
