@@ -32,7 +32,17 @@ def convert_m4a_to_wav(source_directory, destination_directory):
             
             # Export as .wav
             audio.export(wav_file_path, format='wav')
-            print(f"Converted {filename} to {wav_filename}")
+            #print(f"Converted {filename} to {wav_filename}")
+
+def main():
+    if not os.path.exists(SOURCE_DIR):
+        os.makedirs(SOURCE_DIR)
+        print(f"No directory: {SOURCE_DIR}")
+
+    convert_m4a_to_wav(SOURCE_DIR, DESTINATION_DIR)
+
+
 
 if __name__ == "__main__":
-    convert_m4a_to_wav(SOURCE_DIR, DESTINATION_DIR)
+    main()
+    

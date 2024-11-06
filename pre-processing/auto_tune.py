@@ -92,7 +92,7 @@ def pitchLineGraph(f0, filename, correction_method):
 
 def autotune(audio, sr, filename=None):
    
-    # Set some basis parameters.
+    # Set some basis parameters for the pitch tracking (default values from the librosa library) 
     frame_length = 2048
     hop_length = frame_length // 4
     fmin = librosa.note_to_hz('C2')
@@ -149,20 +149,24 @@ def autotune(audio, sr, filename=None):
                                                     fmax=fmax)
     
     # Save the smooth corrected audio
-    #filepath = filename.parent / (filename.stem + '_pcs' + filename.suffix)
-    #sf.write(str(filepath), corrected_smooth_audio, sr)
+    filepath = filename.parent / (filename.stem + '_pcs' + filename.suffix)
+    sf.write(str(filepath), corrected_smooth_audio, sr)
     
     # Plot the pitch line
     pitchLineGraph(f0, filename, 'original')
     pitchLineGraph(corrected_audio_f0, filename, 'corrected')
     pitchLineGraph(corrected_smooth_audio_f0, filename, 'smoothed')
 
-    # Plot the spectrogram
+    ## Plot the spectrogram
     spectrogram(audio,sr,filename,'original')
     spectrogram(corrected_audio,sr,filename,'corrected')
     spectrogram(corrected_smooth_audio,sr,filename,'smoothed')
 
 def create_directory_structure():
+    if not os.path.exists(INPUT_FOLDER_PATH_WAV):
+        os.makedirs(INPUT_FOLDER_PATH_WAV)
+        print(f"Created directory: {INPUT_FOLDER_PATH_WAV}")
+
     if not os.path.exists("data/segmented/graph/pl/original/"): os.makedirs("data/segmented/graph/pl/original/")
     if not os.path.exists("data/segmented/graph/pl/corrected/"): os.makedirs("data/segmented/graph/pl/corrected/") 
     if not os.path.exists("data/segmented/graph/pl/smoothed/"): os.makedirs("data/segmented/graph/pl/smoothed/")
@@ -196,7 +200,9 @@ def main():
     create_directory_structure()
     wav_files = [file for file in os.listdir(INPUT_FOLDER_PATH_WAV) if file.endswith('.wav')]
     num_wav_files = len(wav_files)
-    print(num_wav_files)
+
+    
+    print(f"{num_wav_files} files to process")
     #process_files_in_parallel(wav_files)
 
     for wav_file in tqdm(wav_files):

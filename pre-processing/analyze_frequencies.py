@@ -42,6 +42,8 @@ def count_Frequencies(wav_file):
                             sr=sr,
                             fmin=fmin,
                             fmax=fmax)
+    
+    #print(f0.size)
 
 
     # Filter NaN values

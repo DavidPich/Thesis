@@ -33,6 +33,10 @@ def split_wav(wav_file):
 
 
 def main():
+    if not os.path.exists(INPUT_FOLDER_PATH):
+        os.makedirs(INPUT_FOLDER_PATH)
+        print(f"No directory: {INPUT_FOLDER_PATH}")
+
     # Ensure the output folder exists
     if not os.path.exists(OUTPUT_FOLDER_PATH): os.makedirs(OUTPUT_FOLDER_PATH)
 
@@ -41,7 +45,7 @@ def main():
 
     # Count the number of .wav files
     num_wav_files = len(wav_files)
-    print(num_wav_files)
+    print(f"{num_wav_files} wav files to process")
 
     # Loop through each .wav file
     
