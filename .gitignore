@@ -3,3 +3,5 @@
 *.m4a
 *.DS_Store
 *.pth
+classification/model/resNet_complete.pth
+.DS_Store

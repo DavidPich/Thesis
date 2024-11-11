@@ -17,7 +17,7 @@ import sys
 from tqdm import tqdm 
 
 SEMITONES_IN_OCTAVE = 12
-INPUT_FOLDER_PATH_WAV = 'data/segmented'
+INPUT_FOLDER_PATH_WAV = '/Volumes/Crucial X9/Data_MT/Various Smule Vocal Performances/DB/Batch 3/vocal_org'
 
 
 def closest_pitch_smooth(f0):
@@ -87,6 +87,7 @@ def pitchLineGraph(f0, filename, correction_method):
     plt.ylabel('')
     plt.xlabel('')
     ax.set_axis_off()
+    #print(filename.parent / 'graph/pl' / correction_method / (filename.stem + '.png'))
     plt.savefig(str(filename.parent / 'graph/pl' / correction_method / (filename.stem + '.png')), dpi=300, bbox_inches='tight', pad_inches=0)
     plt.close('all')
 
@@ -167,12 +168,12 @@ def create_directory_structure():
         os.makedirs(INPUT_FOLDER_PATH_WAV)
         print(f"Created directory: {INPUT_FOLDER_PATH_WAV}")
 
-    if not os.path.exists("data/segmented/graph/pl/original/"): os.makedirs("data/segmented/graph/pl/original/")
-    if not os.path.exists("data/segmented/graph/pl/corrected/"): os.makedirs("data/segmented/graph/pl/corrected/") 
-    if not os.path.exists("data/segmented/graph/pl/smoothed/"): os.makedirs("data/segmented/graph/pl/smoothed/")
-    if not os.path.exists("data/segmented/graph/spec/original/"): os.makedirs("data/segmented/graph/spec/original/")
-    if not os.path.exists("data/segmented/graph/spec/corrected/"): os.makedirs("data/segmented/graph/spec/corrected/") 
-    if not os.path.exists("data/segmented/graph/spec/smoothed/"): os.makedirs("data/segmented/graph/spec/smoothed/") 
+    if not os.path.exists(f"{INPUT_FOLDER_PATH_WAV}/graph/pl/original/"): os.makedirs(f"{INPUT_FOLDER_PATH_WAV}/graph/pl/original/")
+    if not os.path.exists(f"{INPUT_FOLDER_PATH_WAV}/graph/pl/corrected/"): os.makedirs(f"{INPUT_FOLDER_PATH_WAV}/graph/pl/corrected/") 
+    if not os.path.exists(f"{INPUT_FOLDER_PATH_WAV}/graph/pl/smoothed/"): os.makedirs(f"{INPUT_FOLDER_PATH_WAV}/graph/pl/smoothed/")
+    if not os.path.exists(f"{INPUT_FOLDER_PATH_WAV}/graph/spec/original/"): os.makedirs(f"{INPUT_FOLDER_PATH_WAV}/graph/spec/original/")
+    if not os.path.exists(f"{INPUT_FOLDER_PATH_WAV}/graph/spec/corrected/"): os.makedirs(f"{INPUT_FOLDER_PATH_WAV}/graph/spec/corrected/") 
+    if not os.path.exists(f"{INPUT_FOLDER_PATH_WAV}/graph/spec/smoothed/"): os.makedirs(f"{INPUT_FOLDER_PATH_WAV}/graph/spec/smoothed/") 
 
 def process_file(wav_file):
     file_path = Path(os.path.join(INPUT_FOLDER_PATH_WAV, wav_file))
