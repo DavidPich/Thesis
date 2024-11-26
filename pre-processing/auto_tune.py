@@ -69,7 +69,7 @@ def spectrogram(audio, sr, filename, correction_method):
     _ , ax = plt.subplots()
     librosa.display.specshow(log_stft, x_axis='time', y_axis='log', ax=ax, sr=sr, hop_length=hop_length, fmin=fmin, fmax=fmax)
 
-    ax.set_ylim([0, 2048])
+    ax.set_ylim([0, 2400])
 
     plt.ylabel('')
     plt.xlabel('')
