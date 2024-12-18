@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import pandas as pd
 import csv
+from datetime import datetime
 
 #Pytorch
 import torch
@@ -19,7 +20,9 @@ from PIL import Image
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
 from itertools import groupby
 
-FOLDERPATH = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/pl'
+FOLDERPATH_PL = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/pl'
+FOLDERPATH_SPEC = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/spec' 
+TS = datetime.now().strftime('%Y%m%d_%H%M%S')
 
 # Validation function
 def validate(model, device, loader):
@@ -40,7 +43,7 @@ def validate(model, device, loader):
     return correct / total
 
 
-def train(model, device):
+def train(model, device, folderpath):
     model = model.to(device)
 
     # Transofrm the images
@@ -51,7 +54,7 @@ def train(model, device):
 
 
     # Load the dataset
-    dataset = datasets.ImageFolder(FOLDERPATH, transform=transform)
+    dataset = datasets.ImageFolder(folderpath, transform=transform)
 
     random_seed = 2024
     torch.manual_seed(random_seed)
@@ -76,12 +79,13 @@ def train(model, device):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    num_epochs = 20
+    num_epochs = 5
 
     acc = []
     loss_values = []
 
-    with open('results/train.csv', 'w', newline='') as csvfile:
+    filename_csv = f'results/train_{TS}.csv'
+    with open(filename_csv, 'w', newline='') as csvfile:
         fieldnames = ['Epoch', 'Loss', 'Validation Accuracy']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
@@ -158,7 +162,8 @@ def test(model, device, data_loader):
     # Display the DataFrame
     print(cm_df)
 
-    with open('results/test_data.txt', 'a') as f:
+    filename_txt = f'results/test_data_{TS}.txt'
+    with open(filename_txt, 'a') as f:
         f.write(f'Accuracy: {accuracy}\n')
         f.write(f'F1 Score: {f1}\n')
         f.write(f'Precision: {precision}\n')
@@ -181,15 +186,18 @@ def main():
     device = "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"Using device: {device}")
 
+    # Check results folder
+    if not os.path.exists(f"{os.getcwd()}/results/"): os.makedirs(f"{os.getcwd()}/results/")
+
     # CNN Architectures
     models_dict = {
-        "resnet50": models.resnet50(),
-        "regnet_y_3_2gf": models.regnet_y_3_2gf(),
-        "vgg16": models.vgg16()
+        "resnet": models.resnet50(),
+        "regnet": models.regnet_y_3_2gf(),
+        "vgg": models.vgg16()
     }
 
     # Train
-    train(models.resnet50(), device)
+    train(models_dict['vgg'], device, FOLDERPATH_SPEC)
 
 
 
