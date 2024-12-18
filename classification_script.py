@@ -4,6 +4,9 @@ import os
 import pandas as pd
 import csv
 from datetime import datetime
+from itertools import groupby
+from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
+from PIL import Image
 
 #Pytorch
 import torch
@@ -14,17 +17,13 @@ import torch.utils.data.dataloader
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
-from PIL import Image
 
-# Evaluation
-from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
-from itertools import groupby
+
 
 FOLDERPATH_PL = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/pl'
 FOLDERPATH_SPEC = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/spec' 
 TS = datetime.now().strftime('%Y%m%d_%H%M%S')
 
-# Validation function
 def validate(model, device, loader):
     correct = 0
     total = 0
@@ -32,7 +31,6 @@ def validate(model, device, loader):
     model.eval()
     with torch.no_grad():
         for images, labels in loader:
-            # Send data to device
             images, labels = images.to(device), labels.to(device)
 
             outputs = model(images)
@@ -70,20 +68,22 @@ def train(model, device, folderpath):
     print('Validation Dataset: ' + str(len(val_dataset)))
     print('Test Dataset: ' + str(len(test_dataset)))
 
+    # Create the data loaders
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True, num_workers=4)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=True, num_workers=4)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=32, shuffle=True, num_workers=4)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=32, shuffle=True, num_workers=4)
-
-    # 6. Verlustfunktion und Optimierer definieren
+    # Define Loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    num_epochs = 5
+    # Define epochs
+    num_epochs = 20
 
     acc = []
     loss_values = []
 
+    # create csv file
     filename_csv = f'results/train_{TS}.csv'
     with open(filename_csv, 'w', newline='') as csvfile:
         fieldnames = ['Epoch', 'Loss', 'Validation Accuracy']
@@ -155,13 +155,13 @@ def test(model, device, data_loader):
         print(f'Recall: {recall}')
 
     # Confusion Matrix
-    # Create a DataFrame from the confusion matrix
     cm = confusion_matrix(true_labels, predicted_labels)
     cm_df = pd.DataFrame(cm, index=['Actual Corrected', 'Actual Original', 'Actual Smoothed'], columns=['Predicted Corrected', 'Predicted Original', 'Predicted Smoothed'])
 
-    # Display the DataFrame
+    # Display the cm
     print(cm_df)
 
+    # Save the results in a txt file
     filename_txt = f'results/test_data_{TS}.txt'
     with open(filename_txt, 'a') as f:
         f.write(f'Accuracy: {accuracy}\n')
@@ -171,20 +171,15 @@ def test(model, device, data_loader):
         f.write(f'Confusion Matrix: {cm_df}\n')
 
 def main():
-    # Check GPU
-    '''print(f"PyTorch version: {torch.__version__}")
+    # Check Cuda
+    print(f"PyTorch version: {torch.__version__}")
 
     print(f"Is CUDA available? {torch.cuda.is_available()}")
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Using device: {device}")'''
-
-    print(f"Is MPS built? {torch.backends.mps.is_built()}")
     print(f"Is MPS available? {torch.backends.mps.is_available()}")
 
-    # Set device
-    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
     print(f"Using device: {device}")
+
 
     # Check results folder
     if not os.path.exists(f"{os.getcwd()}/results/"): os.makedirs(f"{os.getcwd()}/results/")
@@ -197,7 +192,7 @@ def main():
     }
 
     # Train
-    train(models_dict['vgg'], device, FOLDERPATH_SPEC)
+    train(models_dict['resnet'], device, FOLDERPATH_SPEC)
 
 
 
