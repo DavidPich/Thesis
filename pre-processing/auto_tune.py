@@ -17,7 +17,7 @@ import sys
 from tqdm import tqdm 
 
 SEMITONES_IN_OCTAVE = 12
-INPUT_FOLDER_PATH_WAV = '/Volumes/Crucial X9/Data_MT/Various Smule Vocal Performances/DB/Batch 3/vocal_org'
+INPUT_FOLDER_PATH_WAV = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented'
 
 
 def closest_pitch_smooth(f0):
@@ -150,8 +150,8 @@ def autotune(audio, sr, filename=None):
                                                     fmax=fmax)
     
     # Save the smooth corrected audio
-    filepath = filename.parent / (filename.stem + '_pcs' + filename.suffix)
-    sf.write(str(filepath), corrected_smooth_audio, sr)
+    #filepath = filename.parent / (filename.stem + '_pcs' + filename.suffix)
+    #sf.write(str(filepath), corrected_smooth_audio, sr)
     
     # Plot the pitch line
     pitchLineGraph(f0, filename, 'original')

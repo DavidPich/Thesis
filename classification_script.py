@@ -19,7 +19,7 @@ from PIL import Image
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
 from itertools import groupby
 
-FOLDERPATH = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/spec'
+FOLDERPATH = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/pl'
 
 # Validation function
 def validate(model, device, loader):
