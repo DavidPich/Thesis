@@ -1,0 +1,8 @@
+Accuracy: 0.9976007728483922
+F1 Score: 0.9976006238711387
+Precision: 0.9976011200035696
+Recall: 0.9976007728483922
+Confusion Matrix:                   Predicted Corrected  Predicted Original  Predicted Smoothed
+Actual Corrected                62517                  30                 206
+Actual Original                     6               62873                  33
+Actual Smoothed                   130                  47               62552
