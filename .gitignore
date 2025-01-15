@@ -5,3 +5,5 @@
 *.pth
 classification/model/resNet_complete.pth
 .DS_Store
+data/
+*venv/

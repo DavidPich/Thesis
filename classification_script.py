@@ -20,8 +20,8 @@ from torch.utils.data import DataLoader, random_split
 
 
 
-FOLDERPATH_PL = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/pl'
-FOLDERPATH_SPEC = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/spec' 
+#FOLDERPATH_PL = '/Users/davidpichler/GitHubRepo/Thesis/data/segmented/graph/pl'
+FOLDERPATH_SPEC = 'data/spec_total' 
 TS = datetime.now().strftime('%Y%m%d_%H%M%S')
 
 def validate(model, device, loader):
@@ -42,6 +42,11 @@ def validate(model, device, loader):
 
 
 def train(model, device, folderpath):
+#    if torch.cuda.device_count() > 1:
+#        print("Let's use", torch.cuda.device_count(), "GPUs!")
+#        # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPU
+#        model = nn.DataParallel(model)
+#    
     model = model.to(device)
 
     # Transofrm the images
@@ -69,16 +74,16 @@ def train(model, device, folderpath):
     print('Test Dataset: ' + str(len(test_dataset)))
 
     # Create the data loaders
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4)
-    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True, num_workers=4)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=True, num_workers=4)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=16)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True, num_workers=16)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=True, num_workers=16)
 
     # Define Loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     # Define epochs
-    num_epochs = 20
+    num_epochs = 15
 
     acc = []
     loss_values = []
