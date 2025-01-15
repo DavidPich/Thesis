@@ -1,0 +1,9 @@
+Accuracy: 0.4
+F1 Score: 0.22857142857142856
+Precision: 0.16
+Recall: 0.4
+Confusion Matrix:                   Predicted Corrected  Predicted Original  Predicted Smoothed
+Actual Corrected                    0                   1                   0
+Actual Original                     0                   2                   0
+Actual Smoothed                     0                   2                   0
+Time Spent: 0:00:50.107281
