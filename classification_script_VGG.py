@@ -41,12 +41,7 @@ def validate(model, device, loader):
     return correct / total
 
 
-def train(model, device, folderpath):
-#    if torch.cuda.device_count() > 1:
-#        print("Let's use", torch.cuda.device_count(), "GPUs!")
-#        # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPU
-#        model = nn.DataParallel(model)
-#    
+def train(model, device, folderpath): 
     model = model.to(device)
 
     # Transofrm the images
@@ -167,7 +162,7 @@ def test(model, device, data_loader):
     print(cm_df)
 
     # Save the results in a txt file
-    filename_txt = f'results/VGG/test_data_{TS}.txt'
+    filename_txt = f'../results/VGG/test_data_{TS}.txt'
     with open(filename_txt, 'a') as f:
         f.write(f'Accuracy: {accuracy}\n')
         f.write(f'F1 Score: {f1}\n')
