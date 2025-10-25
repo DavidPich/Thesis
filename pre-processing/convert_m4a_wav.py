@@ -8,6 +8,7 @@ DESTINATION_DIR = "data/wav/"
 def count_files(directory):
     return len([name for name in os.listdir(directory) if os.path.isfile(os.path.join(directory, name))])
 
+# AI was used to generate a starting template for this function which was then modified and expanded
 def convert_m4a_to_wav(source_directory, destination_directory):
     # Ensure the destination directory exists
     if not os.path.exists(destination_directory):

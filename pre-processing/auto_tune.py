@@ -187,6 +187,7 @@ def process_file(wav_file):
     # Without args
     autotune(y, sr, file_path)
 
+# AI was used to generate a starting template for this function which was then modified and expanded
 def process_files_in_parallel(file_list):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(process_file, filename) for filename in file_list]

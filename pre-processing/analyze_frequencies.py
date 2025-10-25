@@ -15,6 +15,7 @@ between600and1200 = 0
 over12 = 0
 lowInfo = 0
 
+# AI was used to generate a starting template for this function which was then modified and expanded
 def count_Frequencies(wav_file):
     global highestPitch
     global lowestPitch
@@ -42,9 +43,6 @@ def count_Frequencies(wav_file):
                             sr=sr,
                             fmin=fmin,
                             fmax=fmax)
-    
-    #print(f0.size)
-
 
     # Filter NaN values
     f0 = f0[~np.isnan(f0)]

@@ -24,6 +24,7 @@ from torch.utils.data import DataLoader, random_split
 FOLDERPATH_SPEC = 'data/spec_total' 
 TS = datetime.now().strftime('%Y%m%d_%H%M%S')
 
+# AI was used to generate a starting template for this function which was then modified and expanded
 def validate(model, device, loader):
     correct = 0
     total = 0
@@ -40,7 +41,7 @@ def validate(model, device, loader):
         
     return correct / total
 
-
+# AI was used to generate a starting template for this function which was then modified and expanded
 def train(model, device, folderpath):
     model = model.to(device)
 
@@ -117,7 +118,7 @@ def train(model, device, folderpath):
 
     test(model, device, test_loader)
 
-
+# AI was used to generate a starting template for this function which was then modified and expanded
 def test(model, device, data_loader):
     # Test the model
     model.eval()
@@ -170,6 +171,7 @@ def test(model, device, data_loader):
         f.write(f'Recall: {recall}\n')
         f.write(f'Confusion Matrix: {cm_df}\n')
 
+# AI was used to generate a starting template for this function which was then modified and expanded
 def main():
     # Check Cuda
     print(f"PyTorch version: {torch.__version__}")

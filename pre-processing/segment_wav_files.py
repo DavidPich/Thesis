@@ -7,6 +7,7 @@ INPUT_FOLDER_PATH = 'data/wav'
 OUTPUT_FOLDER_PATH = 'data/segmented'
 SEGMENT_DURATION = 10  # seconds
 
+# AI was used to generate a starting template for this function which was then modified and expanded
 def split_wav(wav_file):
     # Load the .wav file
     file_path = os.path.join(INPUT_FOLDER_PATH, wav_file)
